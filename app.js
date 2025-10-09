@@ -129,8 +129,13 @@ function mostrarListadoProductos() {
 
     listado = listado + "Total de productos: " + productos.length + "\n";
     listado = listado + "Valor total del inventario (COP): " + sumaInventario + " \n---------------------------------------------------------------------------\n\n⬅️ Ahora volvamos al menú principal.";
-
-    alert(listado);   
+    
+    // Visualizar consola cuando se agreguen màs de 2 productos y el usuario quiera ver el listado de productos
+    // Por restricciones, sólo se pueden ver hasta dos productos en las modales del navegador :(
+    if (productos.length > 2 ){
+        console.log(listado);
+        alert("Traté de mostrar tu imperio de productos, pero el navegador tiró la toalla. 🙃 Abre la consola a ver si ahí hay más suerte. \n---------------------------------------------------------------------------\n" + listado);
+    } else { alert(listado)}  
 }
 
 //Iniciador
