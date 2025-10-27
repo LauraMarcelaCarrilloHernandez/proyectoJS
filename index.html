@@ -1,17 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Inventarios | Laura Hernández</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Simulador de Inventario</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="hero">
-    <h1>📝📦 Gestor de inventarios </h1>
-    <p>Este sistema permite al usuario ingresar los productos que conforman su inventario y acceder a un listado actualizado de los elementos creados.</p>
-    <p>🌷 Realizado por <strong>Laura Hernández | Diseñadora UX UI 🌷</strong></p>
-    </header>
+    <!-- modal de bienvenida -->
+    <div id="pantallaInicio" class="pantalla activa">
+        <div class="contenedor">
+            <h1>¡Que bueno tenerte de vuelta!🫣</h1>
+            <p>Para iniciar la gestión de tu inventario, cuéntame ¿Cómo se llama tu empresa?</p>
+            <input type="text" id="inputEmpresa" placeholder=" Ingresa aquí...">
+            <p class="mensaje-error" id="errorEmpresa"></p>
+            <button id="btnIniciar">Comenzar</button>
+            
+        </div>
+    </div>
+
+    <!-- Pantalla de aterrizaje  -->
+    <div id="pantallaInventario" class="pantalla">
+        <div class="encabezado">
+            <h1 id="tituloEmpresa">Inventario</h1>
+            <p id="mensajeBienvenida"></p>
+        </div>
+
+        <!-- Formulario para crear productos -->
+        <div class="seccion-formulario">
+            <h2>➕ Crear nuevo producto</h2>
+            <form id="formProducto">
+                <div class="campo">
+                    <label for="nombreProducto">Nombre del producto</label>
+                    <input type="text" id="nombreProducto" placeholder="Ej. Camisa manga larga" required>
+                </div>
+                <div class="campo">
+                    <label for="cantidadProducto">Unidades disponibles</label>
+                    <input type="number" id="cantidadProducto" placeholder="Ej. 24" min="0" required>
+                </div>
+                <div class="campo">
+                    <label for="precioProducto">Precio unitario (COP)</label>
+                    <input type="number" id="precioProducto" placeholder="Ej. 58000" min="0" required>
+                </div>
+                <div class="botones-formulario">
+                    <button type="submit" class="btn-crear">Agregar producto</button>
+                    <button type="button" class="btn-cancelar" id="btnCancelar">Cancelar</button>
+                </div>
+                <p class="mensaje-feedback" id="mensajeFeedback"></p>
+            </form>
+        </div>
+
+        <!-- Listado de invntario -->
+        <div class="seccion-listado">
+            <h2>📋 Inventario de productos</h2>
+            <div id="resumenInventario">
+                <p><strong>Total de productos:</strong> <span id="totalProductos">0</span></p>
+                <p><strong>Valor total del inventario (COP):</strong> <span id="valorTotalInventario">0</span></p>
+            </div>
+            <div id="listaProductos"></div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>

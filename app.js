@@ -1,142 +1,276 @@
+// variables globales
+let nombreEmpresa = "";
+let productos = [];
+let contadorId = 1;
 
-// almacena el nombre de la empresa
-let nombreEmpresa = "";    
-//almacena los productos
-let productos = [];        
-//asigna Id a los productos
-let contadorId = 1;        
 
-//pedir al usuario el nombre de la empresa
-function iniciarSimulador() {
-    nombreEmpresa = prompt("¡Hola querido Usuario!👋\nPara iniciar la gestión de tu inventario, cuéntame ¿Cómo se llama tu empresa?");
-    if (nombreEmpresa === null || nombreEmpresa.trim() === "") {
-        alert("Si te arrepientes (que suele pasar), solo actualiza la página… ¡y listo! Aquí estaremos, con los brazos abiertos y los productos en stock. 😊");
-        return; }
-    mostrarMenuPrincipal();
+// función para almacenar los productos
+function Producto(id, nombre, cantidad, precioUnitario) {
+    this.id = id;
+    this.nombre = nombre;
+    this.cantidad = cantidad;
+    this.precioUnitario = precioUnitario;
+    this.valorTotal = cantidad * precioUnitario;
 }
 
-//navegación del usuario
-function mostrarMenuPrincipal() {
-    let continuar = true;
-    while (continuar) {
-        // primer mensaje para el usuario
-        let mensaje = "Bienvenid@ al inventario de " + nombreEmpresa + " 📦\n\n";
-        if (productos.length === 0) {
-            mensaje = mensaje + "Aún no tienes productos en tu inventario. Pero no te preocupes, todos empezamos desde cero.\n";
-        } else {
-            mensaje = mensaje + "Tienes " + productos.length + " producto en tu stock. ¡Excelente! Vamos uno a la vez.\n";
-            if (productos.length > 1) {
-                mensaje = "Bienvenid@ al inventario de " + nombreEmpresa + " 🙌\n\nTienes " + productos.length + " productos en tu stock. ¡Vas por buen camino!.\n";
-            }
-        }
-        mensaje = mensaje + "\n¿Qué quieres hacer?\n";
-        mensaje = mensaje + " 1. ➕ Crear nuevo producto\n";
-        mensaje = mensaje + " 2. 🔍 Ver listado de productos\n";
-        mensaje = mensaje + " 3. 🏃‍♂️ Salir";
 
-        let opcion = prompt(mensaje);
+// guardado en localStorage
+function guardarEnLocalStorage() {
+    localStorage.setItem('nombreEmpresa', nombreEmpresa);
+    localStorage.setItem('productos', JSON.stringify(productos));
+    localStorage.setItem('contadorId', contadorId);
+}
 
-        if (opcion === "1") {
-            crearNuevoProducto();
-        } else if (opcion === "2") {
-            let resultado = mostrarListadoProductos();
-            if (resultado === "salir") {
-                continuar = false;
-            }
-        } else if (opcion === "3") {
-            alert("¡Nos vemos pronto! 👋\nGracias por confiar en nuestro inventario para " + nombreEmpresa + ".");
-            continuar = false;
-        } else {
-            alert("Esa opción no existe. Intentémoslo de nuevo.😉");
-        }
+// traer desde localStorage
+function cargarDesdeLocalStorage() {
+    const empresaGuardada = localStorage.getItem('nombreEmpresa');
+    const productosGuardados = localStorage.getItem('productos');
+    const contadorGuardado = localStorage.getItem('contadorId');
+    
+    if (empresaGuardada) {
+        nombreEmpresa = empresaGuardada;
+        productos = productosGuardados ? JSON.parse(productosGuardados) : [];
+        contadorId = contadorGuardado ? parseInt(contadorGuardado) : 1;
+        return true;
+    }
+    return false;
+}
+
+
+function calcularValorTotalInventario() {
+    return productos.reduce(function(total, producto) {
+        return total + producto.valorTotal;
+    }, 0);
+}
+
+
+function obtenerTotalProductos() {
+    return productos.length;
+}
+
+
+// listado del DOM
+const pantallaInicio = document.getElementById('pantallaInicio');
+const pantallaInventario = document.getElementById('pantallaInventario');
+const inputEmpresa = document.getElementById('inputEmpresa');
+const btnIniciar = document.getElementById('btnIniciar');
+const errorEmpresa = document.getElementById('errorEmpresa');
+const tituloEmpresa = document.getElementById('tituloEmpresa');
+const mensajeBienvenida = document.getElementById('mensajeBienvenida');
+const formProducto = document.getElementById('formProducto');
+const mensajeFeedback = document.getElementById('mensajeFeedback');
+const listaProductos = document.getElementById('listaProductos');
+const totalProductos = document.getElementById('totalProductos');
+const valorTotalInventario = document.getElementById('valorTotalInventario');
+
+
+// iniciar programa
+function iniciarApp() {
+    const hayDatosGuardados = cargarDesdeLocalStorage();
+    
+    if (hayDatosGuardados) {
+        mostrarPantallaInventario();
+        actualizarUI();
+    } else {
+        mostrarPantallaInicio();
     }
 }
 
-// crear producto cada que el usuario seleccione 1
-function crearNuevoProducto() {
-    //pedir el nombre del producto
-    let nombre = prompt("📝 ¿Cúal es el nombre del producto? \nAsí dejamos de usar nombres en clave… que ya nadie recuerda. 🤭");
-    if (nombre === null) {
-        return; }
-    //pedir las cantidades
-    let cantidadTexto = prompt("¡Genial! ¿Y cuántas unidades tienes de este producto? 🤩\n(Escribe solo números)");
-    if (cantidadTexto === null) {
-        return;}
-    //valida que sean números
-    let cantidad = parseInt(cantidadTexto);
-    if (isNaN(cantidad) || cantidad < 0) {
-        alert("Cantidad inválida. Intentémoslo de nuevo.😉");
-        return;}
-    // pedir el precio por unidad del producto
-    let precioTexto = prompt("Y hablando de números… \n¿Cuál es el precio unitario (COP) de este producto?💲");
-    if (precioTexto === null) {
-        return;}
 
-    let precioTexto1 = precioTexto.replace(/[.,]/g, "");
-    let precioUnitario = parseInt(precioTexto1);
-    if (isNaN(precioUnitario) || precioUnitario < 0) {
-        alert("Precio inválido. Intentémoslo de nuevo.😉");
-        return;}
-    //almacena el valor total del producto
-    let valorTotal = cantidad * precioUnitario;
-
-    // Confirmación de producto a crear
-    let resumen = "Vale, echemos un vistazo, antes de agregarlo al stock 🧐\n\n";
-    resumen = resumen + "Nombre: " + nombre + "\n";
-    resumen = resumen + "Unidades: " + cantidad + "\n";
-    resumen = resumen + "Precio unitario (COP): " + precioUnitario + "\n";
-    resumen = resumen + "Valor total (COP): " + valorTotal + "\n\n";
-    resumen = resumen + "¿Estás seguro que lo quieres agregar?";
-
-    let confirmar = confirm(resumen);
-    if (confirmar) {
-        let nuevoProducto = {
-            id: contadorId,
-            nombre: nombre,
-            cantidad: cantidad,
-            precioUnitario: precioUnitario,
-            valorTotal: valorTotal
-        };
-        productos.push(nuevoProducto);
-        contadorId = contadorId + 1;
-        alert("✅ ¡El producto '" + nombre + "' ha sido agregado con éxito a tu inventario!");
-    } else {alert("Pensé que ibamos bien. Volvamos al menú pincipal. 😔");}
+// pantalla de inicio - empresa
+function mostrarPantallaInicio() {
+    pantallaInicio.classList.add('activa');
+    pantallaInventario.classList.remove('activa');
 }
 
-// función de mostrar el listado de productos
-function mostrarListadoProductos() {
+
+function mostrarPantallaInventario() {
+    pantallaInicio.classList.remove('activa');
+    pantallaInventario.classList.add('activa');
+    tituloEmpresa.textContent = "Inventario de " + nombreEmpresa + " 📦";
+    actualizarMensajeBienvenida();
+}
+
+
+// actualizar sms de los usuario por ingreso de productos
+function actualizarMensajeBienvenida() {
+    let mensaje = "";
     if (productos.length === 0) {
-        let crearAhora = confirm("Parece que el inventario de " + nombreEmpresa + " está totalmente vacío. 😭\n¿Quieres crear tu primer producto?");
-        if (crearAhora) {
-            crearNuevoProducto();}
+        mensaje = "Aún no tienes productos en tu inventario. Pero no te preocupes, todos empezamos desde cero.";
+    } else if (productos.length === 1) {
+        mensaje = "Tienes " + productos.length + " producto en tu stock. ¡Excelente! Vamos uno a la vez.";
+    } else {
+        mensaje = "Tienes " + productos.length + " productos en tu stock. ¡Vas por buen camino!";
+    }
+    mensajeBienvenida.textContent = mensaje;
+}
+
+
+// lista de eventos en programa
+btnIniciar.addEventListener('click', function() {
+    const nombreIngresado = inputEmpresa.value.trim();
+    
+    if (nombreIngresado === "") {
+        errorEmpresa.textContent = "Ingresa el nombre de tu empresa para comenzar";
         return;
     }
-
-    let listado = "📋 Inventario de " + nombreEmpresa + "\n";
-    listado = listado + "---------------------------------------------------------------------------\n";
-    let sumaInventario = 0;
-
-    for (let i = 0; i < productos.length; i++) {
-        let p = productos[i];
-        listado = listado + "⭐\nID: " + p.id + "\n";
-        listado = listado + "Nombre: " + p.nombre + "\n";
-        listado = listado + "Unidades: " + p.cantidad + "\n";
-        listado = listado + "Precio unidad (COP): " + p.precioUnitario + "\n";
-        listado = listado + "Total (COP): " + p.valorTotal + "\n";
-        listado = listado + "---------------------------------------------------------------------------\n";
-        sumaInventario = sumaInventario + p.valorTotal;
-    }
-
-    listado = listado + "Total de productos: " + productos.length + "\n";
-    listado = listado + "Valor total del inventario (COP): " + sumaInventario + " \n---------------------------------------------------------------------------\n\n⬅️ Ahora volvamos al menú principal.";
     
-    // Visualizar consola cuando se agreguen màs de 2 productos y el usuario quiera ver el listado de productos
-    // Por restricciones, sólo se pueden ver hasta dos productos en las modales del navegador :(
-    if (productos.length > 2 ){
-        console.log(listado);
-        alert("Traté de mostrar tu imperio de productos, pero el navegador tiró la toalla. 🙃 Abre la consola a ver si ahí hay más suerte. \n---------------------------------------------------------------------------\n" + listado);
-    } else { alert(listado)}  
+    nombreEmpresa = nombreIngresado;
+    guardarEnLocalStorage();
+    mostrarPantallaInventario();
+});
+
+
+inputEmpresa.addEventListener('keypress', function(evento) {
+    if (evento.key === 'Enter') {
+        btnIniciar.click();
+    }
+});
+
+
+formProducto.addEventListener('submit', function(evento) {
+    evento.preventDefault();
+    crearNuevoProducto();
+});
+
+// vaciar formulario de creaciòn
+const btnCancelar = document.getElementById('btnCancelar');
+if (btnCancelar) {
+    btnCancelar.addEventListener('click', function() {
+        formProducto.reset();
+        mensajeFeedback.textContent = "";
+    });
 }
 
-//Iniciador
-iniciarSimulador();
+
+// creacion de productos
+function crearNuevoProducto() {
+    const nombre = document.getElementById('nombreProducto').value.trim();
+    const cantidadTexto = document.getElementById('cantidadProducto').value;
+    const precioTexto = document.getElementById('precioProducto').value;
+    
+    const cantidad = parseInt(cantidadTexto);
+    const precioUnitario = parseInt(precioTexto);
+    
+    const nuevoProducto = new Producto(contadorId, nombre, cantidad, precioUnitario);
+    productos.push(nuevoProducto);
+    contadorId = contadorId + 1;
+    
+    guardarEnLocalStorage();
+    mostrarMensaje("✅ ¡El producto '" + nombre + "' ha sido agregado con éxito a tu inventario!", "exito");
+    formProducto.reset();
+    actualizarUI();
+}
+
+
+function mostrarMensaje(texto, tipo) {
+    mensajeFeedback.textContent = texto;
+    mensajeFeedback.className = "mensaje-feedback " + tipo;
+    
+    setTimeout(function() {
+        mensajeFeedback.textContent = "";
+        mensajeFeedback.className = "mensaje-feedback";
+    }, 5000);
+}
+
+
+// actualizar visual
+function actualizarUI() {
+    actualizarMensajeBienvenida();
+    actualizarResumen();
+    renderizarListaProductos();
+}
+
+
+// por cada carga, se actualiza el resumen de los productos
+function actualizarResumen() {
+    totalProductos.textContent = obtenerTotalProductos();
+    valorTotalInventario.textContent = calcularValorTotalInventario().toLocaleString('es-CO');
+}
+
+
+function renderizarListaProductos() {
+    listaProductos.innerHTML = "";
+    
+    if (productos.length === 0) {
+        listaProductos.innerHTML = '<p class="mensaje-vacio">Parece que el inventario de ' + nombreEmpresa + ' está totalmente vacío. 😭<br>¡Crea tu primer producto arriba!</p>';
+        return;
+    }
+    
+    productos.forEach(function(producto) {
+        const card = crearCardProducto(producto);
+        listaProductos.appendChild(card);
+    });
+}
+
+
+// crear card de producto cada que se agregue
+function crearCardProducto(producto) {
+    const card = document.createElement('div');
+    card.className = 'producto-card';
+    
+    card.innerHTML = '<h3>⭐ ' + producto.nombre + '</h3>' +
+        '<div class="producto-info">' +
+            '<p><strong>ID:</strong> ' + producto.id + '</p>' +
+            '<p><strong>Unidades:</strong> ' + producto.cantidad + '</p>' +
+            '<p><strong>Precio unidad (COP):</strong> ' + producto.precioUnitario.toLocaleString('es-CO') + '</p>' +
+            '<p><strong>Total (COP):</strong> ' + producto.valorTotal.toLocaleString('es-CO') + '</p>' +
+        '</div>' +
+        '<button class="btn-eliminar" data-id="' + producto.id + '">Eliminar producto</button>';
+    
+    const btnEliminar = card.querySelector('.btn-eliminar');
+    btnEliminar.addEventListener('click', function() {
+        eliminarProducto(producto.id, card);
+    });
+    
+    return card;
+}
+
+
+// Actualizar id de productos eliminados 
+function reorganizarIds() {
+    productos.forEach(function(producto, index) {
+        producto.id = index + 1;
+    });
+    contadorId = productos.length + 1;
+}
+
+
+// nueva acción: eliminar productos agregados
+function eliminarProducto(id, cardElement) {
+    const productoEliminado = productos.find(function(p) {
+        return p.id === id;
+    });
+    
+    // Crear mensaje de eliminación dentro de la card del elemnto eliminado
+    if (productoEliminado) {
+        const mensajeDiv = document.createElement('div');
+        mensajeDiv.className = 'mensaje-eliminacion';
+        mensajeDiv.textContent = "Has eliminado el producto '" + productoEliminado.nombre + "' 😔";
+        
+        // Agregar el mensaje a la card
+        cardElement.appendChild(mensajeDiv);
+        
+        // Deshabilitar el botón de eliminar POST ELIMINACIÒN
+        const btnEliminar = cardElement.querySelector('.btn-eliminar');
+        btnEliminar.disabled = true;
+        btnEliminar.style.opacity = '0.3';
+        btnEliminar.style.cursor = 'not-allowed';
+        
+        
+        setTimeout(function() {
+            productos = productos.filter(function(p) {
+                return p.id !== id;
+            });
+            
+            // Reorganizar IDs después de eliminar
+            reorganizarIds();
+            
+            guardarEnLocalStorage();
+            actualizarUI();
+        }, 4000);
+    }
+}
+
+// iniciar
+document.addEventListener('DOMContentLoaded', iniciarApp);
