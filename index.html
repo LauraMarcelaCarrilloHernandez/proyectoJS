@@ -3,28 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Inventario</title>
+    <title>Simulador de Inventario Pro</title>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Externo -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- modal de bienvenida -->
-    <div id="pantallaInicio" class="pantalla activa">
+    <!-- Modal de bienvenida -->
+    <div id="pantallaInicio" class="pantalla">
         <div class="contenedor">
             <h1>¡Que bueno tenerte de vuelta!🫣</h1>
             <p>Para iniciar la gestión de tu inventario, cuéntame ¿Cómo se llama tu empresa?</p>
             <input type="text" id="inputEmpresa" placeholder=" Ingresa aquí...">
-            <p class="mensaje-error" id="errorEmpresa"></p>
             <button id="btnIniciar">Comenzar</button>
-            
         </div>
     </div>
 
-    <!-- Pantalla de aterrizaje  -->
-    <div id="pantallaInventario" class="pantalla">
+    <!-- Pantalla de aterrizaje -->
+    <div id="pantallaInventario" class="pantalla activa">
         <div class="encabezado">
-            <h1 id="tituloEmpresa">Inventario</h1>
-            <p id="mensajeBienvenida"></p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 id="tituloEmpresa">Inventario</h1>
+                    <p id="mensajeBienvenida"></p>
+                </div>
+                <button id="btnCerrarSesion" class="btn-cerrar-sesion" title="Cerrar sesión">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+            </div>
         </div>
+
 
         <!-- Formulario para crear productos -->
         <div class="seccion-formulario">
@@ -46,11 +57,10 @@
                     <button type="submit" class="btn-crear">Agregar producto</button>
                     <button type="button" class="btn-cancelar" id="btnCancelar">Cancelar</button>
                 </div>
-                <p class="mensaje-feedback" id="mensajeFeedback"></p>
             </form>
         </div>
 
-        <!-- Listado de invntario -->
+        <!-- Listado de inventario -->
         <div class="seccion-listado">
             <h2>📋 Inventario de productos</h2>
             <div id="resumenInventario">
@@ -61,6 +71,9 @@
         </div>
     </div>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <!-- JS Externo -->
     <script src="app.js"></script>
 </body>
 </html>
